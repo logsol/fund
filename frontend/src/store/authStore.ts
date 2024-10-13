@@ -14,7 +14,7 @@ export interface AuthState {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  checkAuth: () => boolean;
+  isLoggedIn: () => boolean;
   getCurrentUser: () => Promise<User | null>;
 }
 
@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.removeItem('userId');
     set({ token: null, userId: null, user: null });
   },
-  checkAuth: () => {
+  isLoggedIn: () => {
     const token = localStorage.getItem('token');
     return !!token;
   },
