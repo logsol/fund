@@ -1,0 +1,6 @@
+{
+  "watch": ["server.js", "models/", "routes/", "utils/"],
+  "ext": "js,json",
+  "ignore": ["node_modules/"],
+  "exec": "node --inspect server.js"
+}

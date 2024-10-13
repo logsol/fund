@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "path": "frontend/",
+      "group": "none",
+      "label": "start-frontend",
+      "detail": "Start the frontend development server",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting the development server.*$",
+          "endsPattern": "^.*Compiled successfully.*$"
+        }
+      }
+    }
+  ]
+}
