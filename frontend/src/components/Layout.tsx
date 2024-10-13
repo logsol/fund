@@ -17,7 +17,7 @@ const Layout: React.FC = () => {
   }, [getCurrentUser]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col h-[100vh]">
       <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold">Fund</Link>
         {isLoggedIn() && (
@@ -31,7 +31,7 @@ const Layout: React.FC = () => {
           </div>
         )}
       </header>
-      <main className="flex-grow">
+      <main className="flex-1 flex overflow-hidden">
         <Outlet />
       </main>
     </div>

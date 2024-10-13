@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   login: async (email: string, password: string) => {
     try {
-      const response = await axios.post('http://localhost:4000/api/auth/login', { email, password });
+      const response = await axios.post('/api/auth/login', { email, password });
       const { token, userId } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!token) return null;
 
     try {
-      const response = await axios.get('http://localhost:4000/api/users/me', {
+      const response = await axios.get('/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const user = response.data;
