@@ -16,11 +16,14 @@ interface Transaction {
   items: TransactionItem[];
   createdAt: string;
   eventId: string;
+  status: string;
 }
 
 interface TransactionState {
   currentTransaction: Transaction | null;
   createTransaction: (eventId: string, items: Record<string, number>, crewMemberId: string) => Promise<Transaction>;
+  getPaymentUrl: (transactionId: string) => string;
+  payTransaction: (transactionId: string, userId: string) => Promise<boolean>;
 }
 
 export const useTransactionStore = create<TransactionState>((set) => ({
@@ -54,4 +57,32 @@ export const useTransactionStore = create<TransactionState>((set) => ({
       throw error;
     }
   },
+  payTransaction: async (transactionId: string, userId: string): Promise<boolean> => {
+    try {
+      const response = await axios.post(`/api/transactions/pay`, {
+        transactionId,
+        userId,
+      });
+
+      if (response.status === 200 && response.data.message === 'success') {
+        // Assuming the transaction is now paid
+        const updatedTransaction: Transaction = {
+          ...useTransactionStore.getState().currentTransaction!,
+          status: 'paid'
+        };
+        set({ currentTransaction: updatedTransaction });
+        return true;
+      } else {
+        console.warn('Payment failed:', response.data.message || 'Unknown error');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      throw error;
+    }
+  },
+  getPaymentUrl: (transactionId: string) => {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/pay/${transactionId}`;
+  }
 }));

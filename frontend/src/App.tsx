@@ -7,9 +7,10 @@ import { Landing } from './components/pages/Landing';
 import { Dashboard } from './components/pages/member/Dashboard';
 import { Crewboard } from './components/pages/crew/Crewboard';
 import { Login } from './components/pages/Login';
-import { Scan } from './components/pages/Scan';
+import { Scan } from './components/pages/member/Scan';
 import { PosTerminal } from './components/pages/crew/PosTerminal';
-import { Pay } from './components/pages/Pay';
+import { QrPay } from './components/pages/crew/QrPay';
+import { PayLink } from './components/pages/member/PayLink';
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated } = useAuthStore();
@@ -45,9 +46,10 @@ const App: React.FC = () => {
           <Route path="/login" element={<PublicRoute element={<Login />} />} />
           <Route path="/dashboard" element={<ProtectedRoute element={<DashboardComponent />} />} />
           <Route path="/scan" element={<ProtectedRoute element={<Scan />} />} />
+          <Route path="/pay/:transactionId" element={<ProtectedRoute element={<PayLink />} />} />
           <Route path="/crewboard" element={<CrewRoute element={<Crewboard />} />} />
           <Route path="/pos-terminal/:id" element={<CrewRoute element={<PosTerminal />} />} />
-          <Route path="/pay" element={<CrewRoute element={<Pay />} />} />
+          <Route path="/qr-pay" element={<CrewRoute element={<QrPay />} />} />
         </Route>
       </Routes>
     </Router>

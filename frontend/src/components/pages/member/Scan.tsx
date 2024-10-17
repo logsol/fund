@@ -1,19 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { Scanner, IDetectedBarcode, useDevices } from '@yudiel/react-qr-scanner';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Scan: React.FC = () => {
   const devices = useDevices();
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(devices[0]?.deviceId || null);
+  let previousUrlString = "";
 
+  const navigate = useNavigate();
   useEffect(() => {
     if (devices.length > 0 && !selectedDeviceId) {
       setSelectedDeviceId(devices[0].deviceId);
     }
   }, [devices, selectedDeviceId]);
 
-  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+  const extractTransactionIdFromUrl = (url: string): string | null => {
+
+    const parsedUrl = new URL(url);
+
+    // Create regex pattern to match any base URL followed by 
+    // /pay/ and a 24-character hexadecimal string
+    const pathNamePattern = new RegExp(`^/pay/([a-f\\d]{24})\/?$`);
+
+    // Extract transaction ID from URL
+    const match = parsedUrl.pathname.match(pathNamePattern);
+
+    // Return transaction ID or null
+    const transactionId = match ? match[1] : null;
+
+    return transactionId;
+  }
+
+  const handleScan = async (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length > 0) {
-      console.log(detectedCodes[0].rawValue);
+
+      // iterate over detectedCodes
+      for (const code of detectedCodes) {
+        const paymentUrl = code.rawValue;
+
+        // skip empty strings
+        if (paymentUrl === "") {
+          continue;
+        }
+
+        // Skip double scans
+        if (paymentUrl === previousUrlString) {
+          continue;
+        }
+
+        // Store the current URL string
+        previousUrlString = paymentUrl;
+
+        // Extract the transaction ID from the URL
+        const transactionId = extractTransactionIdFromUrl(paymentUrl);  
+
+        // Navigate to the payment page
+        if (transactionId) {
+          navigate(`/pay/${transactionId}`);
+        } else {
+          setTimeout(() => {
+            alert('Invalid transaction');
+          }, 1000);
+        }
+      }
     }
   };
 
@@ -24,9 +73,10 @@ export const Scan: React.FC = () => {
         <div className="w-full aspect-square max-w-md">
           <Scanner
             onScan={handleScan}
+            allowMultiple={true}
             constraints={{ 
               deviceId: selectedDeviceId || undefined,
-              facingMode: 'environment' 
+              facingMode: 'environment',
             }}
           />
         </div>

@@ -1,12 +1,16 @@
 import React from 'react';
-import { useTransactionStore } from '../../store/transactionStore';
+import { useTransactionStore } from '../../../store/transactionStore';
+import QRCode from 'react-qr-code';
 
-export const Pay: React.FC = () => {
-  const { currentTransaction } = useTransactionStore();
+export const QrPay: React.FC = () => {
+  const { currentTransaction, getPaymentUrl } = useTransactionStore();
 
   if (!currentTransaction) {
     return <div>No active transaction</div>;
   }
+
+  // Get the payment URL for the current transaction
+  const paymentUrl = getPaymentUrl(currentTransaction._id);
 
   return (
     <div className="p-4">
@@ -27,8 +31,15 @@ export const Pay: React.FC = () => {
         </div>
       </div>
       <div className="bg-gray-200 p-6 rounded-lg shadow-md text-center">
-        <p className="text-xl font-semibold mb-2">Payment QR Code</p>
-        <p>(Placeholder for QR code)</p>
+        <p className="text-xl font-semibold mb-4">Scan to Pay</p>
+        <div style={{ height: "auto", margin: "0 auto", maxWidth: 256, width: "100%" }}>
+          <QRCode
+            size={256}
+            style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+            value={paymentUrl}
+            viewBox={`0 0 256 256`}
+          />
+        </div>
       </div>
     </div>
   );

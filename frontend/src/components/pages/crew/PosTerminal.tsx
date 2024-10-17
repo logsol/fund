@@ -31,8 +31,12 @@ export const PosTerminal: React.FC = () => {
 
   const handleCompletePurchase = async () => {
     try {
-      const transaction = await createTransaction(event._id, cart, user._id);
-      navigate('/pay');
+
+      // Create and save transaction in database + store
+      await createTransaction(event._id, cart, user._id);
+
+      // Navigate to QR pay page
+      navigate('/qr-pay');
     } catch (error) {
       console.error('Failed to complete purchase:', error);
       // Handle error (e.g., show error message to user)
