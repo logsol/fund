@@ -5,7 +5,7 @@
   "scripts": {
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "dev": "npm-run-all --parallel start:frontend start:backend",
-    "start:frontend": "cd frontend && npm start",
+    "start:frontend": "cd frontend && npm run start-https",
     "start:backend": "cd backend && npm start",
     "install": "concurrently \"cd frontend && npm install\" \"cd backend && npm install\"",
     "dev:backend": "cd backend && npm run dev"

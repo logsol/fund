@@ -31,7 +31,7 @@ const Layout: React.FC = () => {
           </div>
         )}
       </header>
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex flex-col">
         <Outlet />
       </main>
     </div>

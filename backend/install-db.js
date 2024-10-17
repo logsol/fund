@@ -48,7 +48,7 @@ async function installDB() {
       name: 'General Admission',
       description: 'Entrance ticket for Summer Festival',
       type: 'entrance',
-      price: 50
+      price: 12
     });
 
     const beerProduct = await Product.create({
@@ -56,7 +56,7 @@ async function installDB() {
       name: 'Beer',
       description: 'Craft beer',
       type: 'drink',
-      price: 5
+      price: 4
     });
 
     console.log('Created products');

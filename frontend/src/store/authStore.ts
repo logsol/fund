@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   balance: number;
+  isCrew: boolean;
 }
 
 export interface AuthState {
@@ -15,6 +16,7 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoggedIn: () => boolean;
+  isCrewMember: () => boolean;
   getCurrentUser: () => Promise<User | null>;
 }
 
@@ -44,6 +46,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: () => {
     const token = localStorage.getItem('token');
     return !!token;
+  },
+  isCrewMember: () => {
+    const user = get().user;
+    return user?.isCrew || false;
   },
   getCurrentUser: async () => {
     const { token } = get();

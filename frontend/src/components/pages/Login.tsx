@@ -27,8 +27,8 @@ export const Login: React.FC = () => {
 
   if (loginSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
+      <div className="flex flex-col items-center w-full h-full bg-gray-100 sm:px-8 justify-center pb-[15vh] px-8">
+        <div className="max-w-md w-full">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Login Successful!
@@ -57,8 +57,8 @@ export const Login: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center justify-center w-full h-full bg-gray-100 px-8">
-      <div className="max-w-md w-full">
+    <div className="flex flex-col items-center w-full h-full bg-gray-100 sm:px-8 justify-center pb-[15vh] px-8">
+        <div className="max-w-md w-full">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
