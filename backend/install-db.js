@@ -20,14 +20,15 @@ async function installDB() {
       email: 'crew@example.com',
       name: 'Crew Member',
       password: '$2b$10$WPnwQz8msVAzalehPq6VLuTlrwag3xoJIh8e1fyibmNkA/7.EmUSO', // mannoman
-      isCrew: true
+      isCrew: true,
+      balance: 100
     });
 
     const regularUser = await User.create({
       email: 'user@example.com',
       name: 'Regular User',
       password: '$2b$10$WPnwQz8msVAzalehPq6VLuTlrwag3xoJIh8e1fyibmNkA/7.EmUSO', // mannoman
-      balance: 100
+      balance: 23
     });
 
     console.log('Created users');
@@ -64,16 +65,19 @@ async function installDB() {
     // Create transactions
     await Transaction.create({
       user: regularUser._id,
-      amount: 50,
-      type: 'entrance',
-      crewMember: crewUser._id
+      amount: 12,
+      items: [{ name: 'Entrance', price: 12, quantity: 1 }],
+      crewMember: crewUser._id,
+      status: 'paid'
     });
 
     await Transaction.create({
       user: regularUser._id,
       amount: 10,
-      type: 'bar',
-      crewMember: crewUser._id
+      items: [{ name: 'Beer', price: 4, quantity: 2 }],
+      amount: 8,
+      crewMember: crewUser._id,
+      status: 'paid'
     });
 
     console.log('Created transactions');

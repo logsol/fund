@@ -1,14 +1,19 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEventStore } from '../../../store/eventStore';
 import { useProductStore } from '../../../store/productStore';
 import { useCartStore } from '../../../store/cartStore';
+import { useTransactionStore } from '../../../store/transactionStore';
+import { useAuthStore } from '../../../store/authStore';
 
 export const PosTerminal: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { events } = useEventStore();
   const { products, fetchProducts } = useProductStore();
   const { cart, addToCart, removeFromCart, getTotalCredits } = useCartStore();
+  const { createTransaction } = useTransactionStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchProducts();
@@ -16,9 +21,23 @@ export const PosTerminal: React.FC = () => {
 
   const event = events.find(event => event._id === id);
 
+  if (!user) {
+    return <div>Not Authorized</div>;
+  }
+
   if (!event) {
     return <div>Event not found</div>;
   }
+
+  const handleCompletePurchase = async () => {
+    try {
+      const transaction = await createTransaction(event._id, cart, user._id);
+      navigate('/pay');
+    } catch (error) {
+      console.error('Failed to complete purchase:', error);
+      // Handle error (e.g., show error message to user)
+    }
+  };
 
   return (
     <div className="p-4">
@@ -33,7 +52,10 @@ export const PosTerminal: React.FC = () => {
           <p className="text-2xl font-bold">Total</p>
           <div>
             <p className="text-2xl mb-2">{getTotalCredits()} credits</p>
-            <button className="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg font-bold w-full hover:bg-blue-600 transition-colors">
+            <button 
+              onClick={handleCompletePurchase}
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg font-bold hover:bg-blue-600 transition-colors"
+            >
               Complete Purchase
             </button>
           </div>

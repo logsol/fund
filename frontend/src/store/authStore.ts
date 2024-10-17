@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import axios from 'axios';
 
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   balance: number;
@@ -13,9 +13,9 @@ export interface AuthState {
   token: string | null;
   userId: string | null;
   user: User | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  isLoggedIn: () => boolean;
   isCrewMember: () => boolean;
   getCurrentUser: () => Promise<User | null>;
 }
@@ -24,15 +24,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   token: localStorage.getItem('token'),
   userId: localStorage.getItem('userId'),
   user: null,
+  isAuthenticated: !!localStorage.getItem('token'),
   login: async (email: string, password: string) => {
     try {
       const response = await axios.post('/api/auth/login', { email, password });
       const { token, userId } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
-      set({ token, userId });
+      set({ token, userId, isAuthenticated: true });
       // Fetch user data after successful login
-      get().getCurrentUser();
+      await get().getCurrentUser();
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -41,11 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
-    set({ token: null, userId: null, user: null });
-  },
-  isLoggedIn: () => {
-    const token = localStorage.getItem('token');
-    return !!token;
+    set({ token: null, userId: null, user: null, isAuthenticated: false });
   },
   isCrewMember: () => {
     const user = get().user;
@@ -60,10 +57,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         headers: { Authorization: `Bearer ${token}` }
       });
       const user = response.data;
-      set({ user });
+      set({ user, isAuthenticated: true });
       return user;
     } catch (error) {
       console.error('Failed to fetch user data:', error);
+      set({ isAuthenticated: false, user: null });
       return null;
     }
   },
