@@ -20,7 +20,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "start-https": "HTTPS=true craco start"
+    "start-https": "HTTPS=true SSL_CRT_FILE=../certs/localhost.pem SSL_KEY_FILE=../certs/localhost-key.pem craco start"
   },
   "browserslist": {
     "production": [
