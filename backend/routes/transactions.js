@@ -3,7 +3,6 @@ const router = express.Router();
 const Transaction = require('../models/Transaction');
 const Event = require('../models/Event');
 const User = require('../models/User');
-const mongoose = require('mongoose');
 
 // Create a new transaction
 router.post('/', async (req, res) => {
@@ -56,31 +55,25 @@ router.post('/', async (req, res) => {
 
 // add pay route where we associate the user with the transaction
 router.post('/pay', async (req, res) => {
-
-  // Start a mongo transaction session
-  // That means DB changes are only applied if everything worked.
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { userId, transactionId } = req.body;
     
-    const user = await User.findById(userId).session(session);
+    const user = await User.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const transaction = await Transaction.findById(transactionId).session(session);
+    const transaction = await Transaction.findById(transactionId);
     if (!transaction) {
-      throw new Error('Transaction not found');
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
     if (transaction.status === 'paid') {
-      throw new Error('Transaction has already been paid');
+      return res.status(400).json({ message: 'Transaction has already been paid' });
     }
 
     if (user.balance < transaction.amount) {
-      throw new Error('Insufficient balance');
+      return res.status(400).json({ message: 'Insufficient balance' });
     }
 
     // Update transaction status
@@ -91,18 +84,10 @@ router.post('/pay', async (req, res) => {
     user.balance -= transaction.amount;
     await user.save();
 
-    // If we've made it this far, commit the transaction
-    await session.commitTransaction();
-    session.endSession();
-
-    res.status(200).json({ message: 'Payment successful' });
+    res.status(200).json({ message: 'success' });
   } catch (error) {
-    // If an error occurred, abort the transaction
-    await session.abortTransaction();
-    session.endSession();
-
     console.error('Error paying for transaction:', error);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -12,7 +12,8 @@ const transactionSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   items: [itemSchema],
   createdAt: { type: Date, default: Date.now },
-  status: { type: String, enum: ['pending', 'paid', 'cancelled'], default: 'pending' }
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: false },
+  status: { type: String, enum: ['pending', 'paid', 'cancelled'], default: 'pending' },
 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);
