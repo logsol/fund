@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Enable CORS
 app.use(cors({
-  origin: 'http://localhost:3000', // Your frontend URL
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : 'http://localhost:3000',
   credentials: true,
 }));
 
@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Basic route
-app.get('/', (req, res) => {
+app.get('/api/', (req, res) => {
   res.json({ message: 'Welcome to the Fund API' });
 });
 
