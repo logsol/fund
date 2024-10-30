@@ -1,12 +1,27 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const eventsRoutes = require('./routes/events');
 const productsRoutes = require('./routes/products');
 const transactionsRoutes = require('./routes/transactions');
+
+const expectedDotenvVariables = [
+  'JWT_SECRET', 
+  'MONGODB_URI', 
+  'PORT', 
+  'ALLOWED_ORIGINS'
+];
+
+// Iterate and throw error if any of the expected variables are not defined
+for (const variable of expectedDotenvVariables) {
+  if (!process.env[variable]) {
+    throw new Error(`${variable} is not defined in .env`);
+  }
+};
 
 const app = express();
 const PORT = process.env.PORT || 4000;
