@@ -8,12 +8,14 @@ const usersRoutes = require('./routes/users');
 const eventsRoutes = require('./routes/events');
 const productsRoutes = require('./routes/products');
 const transactionsRoutes = require('./routes/transactions');
+const commandRoutes = require('./routes/command');
 
 const expectedDotenvVariables = [
   'JWT_SECRET', 
   'MONGODB_URI', 
   'PORT', 
-  'ALLOWED_ORIGINS'
+  'ALLOWED_ORIGINS',
+  'GITHUB_WEBHOOK_SECRET'
 ];
 
 // Iterate and throw error if any of the expected variables are not defined
@@ -51,6 +53,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/transactions', transactionsRoutes);
+app.use('/api/command', commandRoutes);
 
 // Start server
 app.listen(PORT, () => {
