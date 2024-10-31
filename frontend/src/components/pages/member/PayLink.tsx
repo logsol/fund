@@ -6,6 +6,7 @@ import { ArrowPathIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24
 
 export const PayLink: React.FC = () => {
   const [paymentStatus, setPaymentStatus] = useState<'processing' | 'success' | 'error'>('processing');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const { transactionId } = useParams<{ transactionId: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -14,24 +15,28 @@ export const PayLink: React.FC = () => {
     const processPayment = async () => {
       if (!transactionId) {
         setPaymentStatus('error');
+        setErrorMessage('Transaction ID is missing');
         return;
       }
 
       if (!user?._id) {
         setPaymentStatus('error');
+        setErrorMessage('User is not authenticated');
         return;
       }
 
       try {
-        const success = await payTransaction(transactionId, user._id);
-        if (success) {
+        const result = await payTransaction(transactionId, user._id);
+        if (result.success) {
           setPaymentStatus('success');
         } else {
           setPaymentStatus('error');
+          setErrorMessage(result.message || 'Payment could not be processed');
         }
       } catch (error) {
         console.error('Payment processing error:', error);
         setPaymentStatus('error');
+        setErrorMessage('An unexpected error occurred');
       }
     };
 
@@ -39,11 +44,10 @@ export const PayLink: React.FC = () => {
   }, [transactionId]);
 
   useEffect(() => {
-    if (paymentStatus !== 'processing') {
+    if (paymentStatus === 'success' || paymentStatus === 'error') {
       const timer = setTimeout(() => {
-        // set fail state
-        setPaymentStatus('error');
-      }, 5000);
+        navigate('/dashboard');
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -62,8 +66,27 @@ export const PayLink: React.FC = () => {
       )}
       <p className="mt-4 text-xl font-semibold">
         {paymentStatus === 'processing' && 'Processing payment...'}
-        {paymentStatus === 'success' && 'Payment successful!'}
-        {paymentStatus === 'error' && 'Payment failed. Please try again.'}
+        {paymentStatus === 'success' && (
+          <>
+            Payment successful!
+            <span className="block mt-2 text-sm text-gray-600">
+              Redirecting to dashboard...
+            </span>
+          </>
+        )}
+        {paymentStatus === 'error' && (
+          <>
+            Payment failed
+            {errorMessage && (
+              <span className="block mt-2 text-sm text-red-600">
+                {errorMessage}
+              </span>
+            )}
+            <span className="block mt-2 text-sm text-gray-600">
+              Redirecting to dashboard...
+            </span>
+          </>
+        )}
       </p>
     </div>
   );

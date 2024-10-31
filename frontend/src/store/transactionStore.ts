@@ -16,14 +16,16 @@ interface Transaction {
   items: TransactionItem[];
   createdAt: string;
   eventId: string;
-  status: string;
+  status: 'pending' | 'paid' | 'cancelled';
+  cancelReason?: string;
 }
 
 interface TransactionState {
   currentTransaction: Transaction | null;
   createTransaction: (eventId: string, items: Record<string, number>, crewMemberId: string) => Promise<Transaction>;
   getPaymentUrl: (transactionId: string) => string;
-  payTransaction: (transactionId: string, userId: string) => Promise<boolean>;
+  payTransaction: (transactionId: string, userId: string) => Promise<{ success: boolean; message?: string }>;
+  fetchTransaction: (transactionId: string) => Promise<Transaction>;
 }
 
 export const useTransactionStore = create<TransactionState>((set) => ({
@@ -57,7 +59,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
       throw error;
     }
   },
-  payTransaction: async (transactionId: string, userId: string): Promise<boolean> => {
+  payTransaction: async (transactionId: string, userId: string) => {
     try {
       const response = await axios.post(`/api/transactions/pay`, {
         transactionId,
@@ -65,24 +67,33 @@ export const useTransactionStore = create<TransactionState>((set) => ({
       });
 
       if (response.status === 200 && response.data.message === 'success') {
-        // Assuming the transaction is now paid
         const updatedTransaction: Transaction = {
           ...useTransactionStore.getState().currentTransaction!,
           status: 'paid'
         };
         set({ currentTransaction: updatedTransaction });
-        return true;
+        return { success: true };
       } else {
-        console.warn('Payment failed:', response.data.message || 'Unknown error');
-        return false;
+        return { success: false, message: response.data.message || 'Unknown error' };
       }
     } catch (error) {
-      console.error('Error processing payment:', error);
-      throw error;
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        return { success: false, message: error.response.data.message };
+      }
+      return { success: false, message: 'An unexpected error occurred' };
     }
   },
   getPaymentUrl: (transactionId: string) => {
     const baseUrl = window.location.origin;
     return `${baseUrl}/pay/${transactionId}`;
+  },
+  fetchTransaction: async (transactionId: string) => {
+    try {
+      const response = await axios.get(`/api/transactions/${transactionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching transaction:', error);
+      throw error;
+    }
   }
 }));

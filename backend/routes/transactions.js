@@ -72,8 +72,23 @@ router.post('/pay', async (req, res) => {
       return res.status(400).json({ message: 'Transaction has already been paid' });
     }
 
+    if (transaction.status === 'cancelled') {
+      return res.status(400).json({ 
+        message: 'Transaction has been cancelled',
+        cancelReason: transaction.cancelReason 
+      });
+    }
+
     if (user.balance < transaction.amount) {
-      return res.status(400).json({ message: 'Insufficient balance' });
+      // Cancel the transaction and save the reason
+      transaction.status = 'cancelled';
+      transaction.cancelReason = 'Insufficient balance';
+      await transaction.save();
+      
+      return res.status(400).json({ 
+        message: 'Insufficient balance',
+        cancelReason: 'Insufficient balance'
+      });
     }
 
     // Update transaction status
